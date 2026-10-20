@@ -14,6 +14,9 @@ export class Account {
   @Column({ name: 'balance_minor', type: 'bigint' })
   balanceMinor!: string;
 
+  @Column({ name: 'bonus_opt_out', type: 'boolean', default: false })
+  bonusOptOut!: boolean;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 }

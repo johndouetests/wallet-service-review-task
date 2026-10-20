@@ -23,6 +23,9 @@ export class Transaction {
   @Column({ name: 'provider_tx_id', type: 'varchar', length: 128, nullable: true })
   providerTxId!: string | null;
 
+  @Column({ name: 'is_bonus', type: 'boolean' })
+  isBonus!: boolean;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 }
