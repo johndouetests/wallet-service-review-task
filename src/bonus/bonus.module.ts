@@ -5,10 +5,11 @@ import { Transaction } from '../transactions/transaction.entity';
 import { AffiliateService } from './affiliate.service';
 import { Bonus } from './bonus.entity';
 import { BonusService } from './bonus.service';
+import { FtdConsumer } from './ftd.consumer';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Bonus, Transaction, Account])],
-  providers: [BonusService, AffiliateService],
+  providers: [BonusService, AffiliateService, FtdConsumer],
   exports: [BonusService],
 })
 export class BonusModule {}
