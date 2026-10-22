@@ -1,4 +1,4 @@
-import { IsIn, IsOptional, IsString, IsUUID, Length, Matches } from 'class-validator';
+import { IsIn, IsNumber, IsOptional, IsString, IsUUID, Length } from 'class-validator';
 
 export const DEPOSIT_STATUSES = ['success', 'pending', 'failed'] as const;
 export type DepositStatus = (typeof DEPOSIT_STATUSES)[number];
@@ -12,9 +12,9 @@ export class DepositWebhookDto {
   @IsUUID()
   accountId!: string;
 
-  /** Integer minor units as a string, e.g. "2500" = 25.00 */
-  @Matches(/^[1-9]\d{0,11}$/)
-  amountMinor!: string;
+  /** PSP v2 sends the amount in major units, e.g. 25.5 */
+  @IsNumber()
+  amount!: number;
 
   @IsString()
   @Length(3, 3)

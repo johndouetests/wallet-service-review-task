@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { DataSource, QueryFailedError } from 'typeorm';
 import { Account } from '../accounts/account.entity';
 import { BalanceCache } from '../accounts/balance-cache';
+import { BonusService } from '../bonus/bonus.service';
 import { addMinor } from '../common/money';
 import { OutboxService } from '../outbox/outbox.service';
 import { Transaction } from '../transactions/transaction.entity';
@@ -19,9 +20,16 @@ export class DepositsService {
     private readonly dataSource: DataSource,
     private readonly outbox: OutboxService,
     private readonly cache: BalanceCache,
+    private readonly bonusService: BonusService,
   ) {}
 
   async handleWebhook(dto: DepositWebhookDto): Promise<DepositResult> {
+    this.logger.log(`Webhook received: ${JSON.stringify(dto)}`);
+    const amountMinor = Math.round(dto.amount * 100).toString();
+
+    // welcome bonus + FTD for affiliates
+    await this.bonusService.processFirstDeposit(dto.accountId, dto.amount, dto.currency, dto.providerTxId);
+
     if (dto.status !== 'success') {
       this.logger.log(`Deposit ${dto.providerTxId} status=${dto.status}, nothing to credit`);
       return 'ignored';
@@ -45,17 +53,18 @@ export class DepositsService {
         await manager.insert(Transaction, {
           accountId: account.id,
           type: 'deposit',
-          amountMinor: dto.amountMinor,
+          amountMinor,
           currency: dto.currency,
           providerTxId: dto.providerTxId,
+          isBonus: false,
         });
 
-        await manager.update(Account, { id: account.id }, { balanceMinor: addMinor(account.balanceMinor, dto.amountMinor) });
+        await manager.update(Account, { id: account.id }, { balanceMinor: addMinor(account.balanceMinor, amountMinor) });
 
         await this.outbox.enqueue(manager, 'deposit.completed', {
           accountId: account.id,
           providerTxId: dto.providerTxId,
-          amountMinor: dto.amountMinor,
+          amountMinor,
           currency: dto.currency,
         });
       });

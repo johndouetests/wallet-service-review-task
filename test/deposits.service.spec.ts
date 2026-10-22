@@ -8,7 +8,7 @@ function dto(overrides: Partial<DepositWebhookDto> = {}): DepositWebhookDto {
   return {
     providerTxId: 'tx-1',
     accountId: ACCOUNT_ID,
-    amountMinor: '2500',
+    amount: 25,
     currency: 'EUR',
     status: 'success',
     ...overrides,
@@ -24,7 +24,8 @@ function setup(options: { insertError?: Error } = {}) {
   const dataSource = { transaction: jest.fn((fn: (m: typeof manager) => Promise<void>) => fn(manager)) };
   const outbox = { enqueue: jest.fn().mockResolvedValue(undefined) };
   const cache = { invalidate: jest.fn().mockResolvedValue(undefined) };
-  const service = new DepositsService(dataSource as any, outbox as any, cache as any);
+  const bonus = { processFirstDeposit: jest.fn().mockResolvedValue(undefined) };
+  const service = new DepositsService(dataSource as any, outbox as any, cache as any, bonus as any);
   return { service, manager, outbox, cache };
 }
 

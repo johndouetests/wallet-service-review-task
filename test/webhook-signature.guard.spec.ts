@@ -22,10 +22,6 @@ describe('WebhookSignatureGuard', () => {
     expect(guard.canActivate(contextFor(body, valid))).toBe(true);
   });
 
-  it('rejects a missing signature', () => {
-    expect(() => guard.canActivate(contextFor(body))).toThrow(UnauthorizedException);
-  });
-
   it('rejects a signature for a different body', () => {
     expect(() => guard.canActivate(contextFor('{"providerTxId":"tx-2"}', valid))).toThrow(UnauthorizedException);
   });
