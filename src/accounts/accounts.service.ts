@@ -19,7 +19,7 @@ export class AccountsService {
 
   async getBalance(accountId: string): Promise<BalanceView> {
     const account = await this.findOrFail(accountId);
-    const cached = await this.getCached(accountId);
+    const cached = await this.readCachedBalance(accountId);
     if (cached !== null) {
       return { accountId, currency: account.currency, balanceMinor: cached };
     }
@@ -27,7 +27,7 @@ export class AccountsService {
     return { accountId, currency: account.currency, balanceMinor: account.balanceMinor };
   }
 
-  private getCached(accountId: string): Promise<string | null> {
+  private readCachedBalance(accountId: string): Promise<string | null> {
     return this.cache.get(accountId);
   }
 
